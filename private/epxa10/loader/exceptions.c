@@ -185,7 +185,7 @@ static int swiwrite(int file, char *ptr, int len) {
 	 while (ts<len) {
 	    const int nleft = (len-ts);
 	    const int ns = nleft<4092 ? nleft : 4092;
-	    hal_FPGA_TEST_send(0, ns, ptr + ts);
+	    hal_FPGA_send(0, ns, ptr + ts);
 	    ts+=ns;
 	 }
       }
@@ -232,7 +232,7 @@ static int swiread(int file, char *ptr, int len) {
       else {
 	 int type;
 
-	 hal_FPGA_TEST_receive(&type, &bl, buffer);
+	 hal_FPGA_receive(&type, &bl, buffer);
 
 	 if (bl <= len) {
 	    /* whole buffer goes this time... */

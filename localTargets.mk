@@ -6,16 +6,16 @@ $(BUILD_DIR)/$(PUB_ROOT)/%.S: %.awk $(CONFIG_FILE)
 	@test -d $(@D) || mkdir -p $(@D)
 	$(GAWK) -f $(<D)/$(COMMON_AWK) -f $(<)  < $(CONFIG_FILE) > $(@D)/$(*F).S
 
-$(BUILD_DIR)/$(PUB_ROOT)/booter/pll.S: booter/pll.awk $(BUILD_DIR)/pllsrch
+$(BUILD_DIR)/$(PUB_ROOT)/booter/pll.S: booter/pll.awk $(HOST_BUILD_DIR)/pllsrch
 	@test -d $(@D) || mkdir -p $(@D)
 	(cd $(<D); $(GAWK) -f $(COMMON_AWK) -f $(*F).awk  < $(CONFIG_AWK) > $(*F).S)
 	mv $(<D)/$(*F).S $(@D)/$(*F).S
 
-$(BUILD_DIR)/pllsrch : private/epxa10/booter/pllsrch.c
+$(HOST_BUILD_DIR)/pllsrch : private/epxa10/booter/pllsrch.c
 	@test -d $(@D) || mkdir -p $(@D)
 	$(HOST_CC) -o $(@) $(<)
 
-$(BUILD_DIR)/mempat : private/epxa10/booter/mempat.c
+$(HOST_BUILD_DIR)/mempat : private/epxa10/booter/mempat.c
 	@test -d $(@D) || mkdir -p $(@D)
 	$(HOST_CC) -o $(@) $(<)
 
@@ -35,7 +35,7 @@ $(BUILD_DIR)/%.elf : $(BUILD_DIR)/%.o
 $(LIB_DIR)/crt0.o : $(BUILD_DIR)/crt0.o
 	cp $(<) $(@)
 
-$(LIB_DIR)/pattern.mem : $(BUILD_DIR)/mempat
+$(LIB_DIR)/pattern.mem : $(HOST_BUILD_DIR)/mempat
 	./$(<) > $(@)
 
 $(LIB_DIR)/%.bin : $(BUILD_DIR)/%.elf

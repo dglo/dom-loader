@@ -10,6 +10,9 @@
 #ifndef UARTCOMM_H
 #define UARTCOMM_H
 
+#include "booter/epxa.h"
+
+#define EXC_UART00_BASE (REGISTERS + 0x280)
 
 #define BUFF_SIZE	16384
 #define BUFF_MASK	0x3FFF

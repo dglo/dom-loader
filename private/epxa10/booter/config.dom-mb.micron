@@ -1,0 +1,134 @@
+#
+# configuration information for excalibur chips...
+#
+
+#
+# device identifier...
+#
+DEVICE	epxa1
+
+#
+# memory map...
+#
+REGISTERS	0x7fffc000
+
+#
+# clocks
+#
+# ahb1 is the cpu clock (PLL 1)
+# ahb2 is ahb1/2
+# sdram is the sdram clock (PLL 2)
+# external is the external clock (CLK_REF)
+# ebi_clk is the ebi clock up to x16 on the ahb2...
+#
+AHB1		160M
+SDRAM_CLK	40M
+EXTERNAL	20M
+EBI_CLK		5M
+
+#
+# sdram timings (samsung)...
+#
+# all values are in ns
+#
+# except:
+#  CAS is in clocks
+#  BL is in 32 bit words
+#  ROW, COL are in address lines
+#  WIDTH is in bits
+#  DDR is 0 (no) or 1 (yes)
+#
+RCD	1CK
+RAS	50ns
+RRD	20ns
+RP	20ns
+WR	15ns
+RC	100ns
+BL	8
+RFC	100ns
+RFSH	15625ns
+#RFSH    7500
+ROW	12
+COL	8
+WIDTH	32
+CAS	3
+DDR	0
+
+#
+# iocontrol registers, page 167...
+#
+IOCR_SDRAM	stripe	fast	1.8V
+IOCR_EBI	stripe	fast	3.3V
+IOCR_UART	stripe	slow	3.3V
+IOCR_TRACE	stripe	fast	3.3V
+
+#
+# uart settings (baud, parity, bits, stop bits, parity on, hwfc on/off)...
+#
+#UART_SETTINGS	57600	N	8	1	none	on
+UART_SETTINGS	115200	N	8	1	none	on
+#UART_SETTINGS	230400	N	8	1	none	on
+
+#
+# memory map (name, address, size, prefetch (yes or no)
+#
+# this is the physical memory map, page tables entries (PTE_x) below
+# will probably need to be updated if the address here changes...
+# 
+# name		address		size		prefetch
+#
+SDRAM0_MAP	0x00000000	0x01000000	yes
+SDRAM1_MAP	0x01000000	0x01000000	yes
+
+SRAM0_MAP	0x10000000	0x00004000	yes
+SRAM1_MAP	0x10004000	0x00004000	yes
+
+EBI0_MAP	0x40000000	0x00400000	yes
+EBI1_MAP	0x40400000	0x00400000	yes
+EBI2_MAP	0x50000000	0x00004000	no
+EBI3_MAP	0x60000000	0x00004000	no
+
+EPXA_MAP	0x7fffc000	0x00004000	no
+
+DPSRAM0_MAP	0x80000000	0x00004000	no
+
+PLD0_MAP	0x90000000	0x00800000	no
+
+#
+# EBI CONFIG (synchronous, wait states, width, byte enables (yes or no))
+#
+EBI0_CFG	sync	0	16	no
+EBI1_CFG	sync	0	16	no
+EBI2_CFG	sync	0	8	yes
+EBI3_CFG	sync	0	8	yes
+
+#
+# page table entry setup.
+#
+# we use the section descriptor for our page tables -- it should
+#   be sufficient for our needs...
+#
+#   name: pte entry, must be PTE...
+#   virt addr: virtual address, the address that the cpu sees...
+#   phys addr: physical address, the address that the device sits...
+#   size: size of mapping in MB
+#   access: access permissions (none, clnt, res, mgr)
+#   domain: domain control (4 bits)
+#   cache: 
+#      NCNB: noncached, nonbuffered
+#      NCB: noncached, buffered
+#      WT: cached, write-though
+#      WB: cached, write-back
+#
+# name	virt addr	phys addr	size	access	domain	cache
+#
+PTE	0x00000000	0x00000000	32	mgr	0	WB
+PTE	0x10000000	0x10000000	1	mgr	0	WB
+PTE	0x40000000	0x40000000	8	mgr	0	WB
+PTE	0x41000000	0x40000000	8	mgr	0	NCNB
+PTE	0x50000000	0x50000000	1	mgr	0	NCNB
+PTE	0x60000000	0x60000000	1	mgr	0	NCNB
+PTE	0x7fffc000	0x7fffc000	1	mgr	0	NCNB
+PTE	0x80000000	0x80000000	1	mgr	0	NCNB
+PTE	0x90000000	0x90000000	8	mgr	0	NCNB
+

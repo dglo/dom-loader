@@ -25,20 +25,20 @@ void irq_init(void)
 	*	Disable the interrupts for all the PLD sources
 	*	confusingly enough these are all on by default
 	*	The reason is in case people want to implement their own
-	*	interrupt controller in the PLD they don't have to write 
+	*	interrupt controller in the PLD they don't have to write
 	*	any code to enable interrupts in the Excalibur controller
 	*/
-	*INT_MC(EXC_INT_CTRL00_BASE) = 	INT_MC_P0_MSK | INT_MC_P1_MSK | 
-									INT_MC_P2_MSK | INT_MC_P3_MSK | 
+	*INT_MC(EXC_INT_CTRL00_BASE) =	INT_MC_P0_MSK | INT_MC_P1_MSK |
+									INT_MC_P2_MSK | INT_MC_P3_MSK |
 									INT_MC_P4_MSK | INT_MC_P5_MSK;
-		
-	/* 
+
+	/*
 	* Set priority for the UART interrupts
 	*/
 	*INT_PRIORITY_UA(EXC_INT_CTRL00_BASE)=UART_IRQ_PRI;
-	
+
 	/*
-	*	Enable the UART interrupt 
+	*	Enable the UART interrupt
 	*/
 	*INT_MS(EXC_INT_CTRL00_BASE)=INT_MS_UA_MSK;
 }
@@ -46,7 +46,7 @@ void irq_init(void)
 void CIrqHandler(void)
 {
 	volatile int irqID;
-	
+
 	irqID = *INT_ID(EXC_INT_CTRL00_BASE);
 
 	switch (irqID)
@@ -57,9 +57,9 @@ void CIrqHandler(void)
 	default:
 		/* This shouldn't happen, but let's trap it in case */
 		printf("Unknown irq %#x",irqID);
-		break;		
+		break;
 	}
-	
+
 	return;
 }
 

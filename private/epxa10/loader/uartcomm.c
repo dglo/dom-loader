@@ -1,9 +1,9 @@
 /*
-* 	General UART IO functions (interrupt driven), they are configured by default
+*	General UART IO functions (interrupt driven), they are configured by default
 *	for a baud rate of 38400, 8 bits per character, 1 stop bit, no parity, with no flow
 *	control.
 *
-* 	Copyright (c) Altera Corporation 2000-2001.
+*	Copyright (c) Altera Corporation 2000-2001.
 */
 
 #include <stdio.h>
@@ -25,14 +25,14 @@ volatile int tx_head,tx_tail,rx_head,rx_tail;
 void uart_init(void)
 {
     /* setup the rx and tx circular buffers */
-	
+
 	rx_head=rx_tail=0;
 	tx_head=tx_tail=0;
 
 	irq_init();
-     
-	/* 
-	 * configure the uart for 38400 baud, 8 data, 
+
+	/*
+	 * configure the uart for 38400 baud, 8 data,
 	 * 1 stop, no parity
 	 */
 
@@ -46,9 +46,9 @@ void uart_init(void)
 #endif
 
 	/* Setup and clear FIFOs */
-	*UART_FCR(EXC_UART00_BASE)=UART_FCR_RX_THR_1 | UART_FCR_TX_THR_2 | 
+	*UART_FCR(EXC_UART00_BASE)=UART_FCR_RX_THR_1 | UART_FCR_TX_THR_2 |
 		UART_FCR_RC_MSK | UART_FCR_TC_MSK;
-		
+
 	/* Clear pending interrupt */
 	*UART_IEC(EXC_UART00_BASE) = UART_IEC_RE_MSK | UART_IEC_TE_MSK;
 
@@ -63,24 +63,24 @@ static void uart_tx_handler(void)
 	/* Read the status register to clear the interrupt */
 	dummy=*UART_TSR(EXC_UART00_BASE);
 
-	/* 
-	 * Write data to the fifo until it either 
+	/*
+	 * Write data to the fifo until it either
 	 * fills up, or we run out of stuff in the
-	 * tx buffer 
+	 * tx buffer
 	 */
-	
-       
+
+
 	while(((*UART_TSR(EXC_UART00_BASE) & UART_TSR_TX_LEVEL_MSK)<15)&&
 	      (tx_head!=tx_tail))
 	{
-				
+
 		/* transmit the next character */
 		*UART_TD(EXC_UART00_BASE)=tx_buffer[tx_head++];
 		tx_head&=BUFF_MASK;
 	}
-	/* 
-	 * If there's nothing left to transmit, turn the 
-	 * interrupt off 
+	/*
+	 * If there's nothing left to transmit, turn the
+	 * interrupt off
 	 */
 	if(tx_head==tx_tail)
 	{
@@ -103,7 +103,7 @@ static void uart_rx_handler(void)
 	      next_loc=(rx_tail+1)&BUFF_MASK;
 	      if(next_loc==rx_head)
 		  {
-		      /* 
+		      /*
 		       * Hmm, the buffer is full so we'll
 		       * ditch the stuff in the fifo
 		       */
@@ -115,12 +115,12 @@ static void uart_rx_handler(void)
 		rx_tail++;
 		rx_tail&=BUFF_MASK;
 
-	} 
+	}
 }
 
 void uart_irq_handler(void)
 {
-       
+
 	while(*UART_IID(EXC_UART00_BASE) & UART_IID_IID_MSK)
 	{
 		switch(*UART_IID(EXC_UART00_BASE) & UART_IID_IID_MSK)
@@ -129,7 +129,7 @@ void uart_irq_handler(void)
 
 			uart_rx_handler();
 			break;
-			
+
 		case UART_IID_IID_TI:
 			uart_tx_handler();
 			break;
@@ -138,11 +138,11 @@ void uart_irq_handler(void)
 		case UART_IID_IID_MI:
 		default:
 
-			/* 
+			/*
 			 * Tricky to know what to do here
-			 * so we'll do nothing and hope the 
+			 * so we'll do nothing and hope the
 			 * irq goes away. We'll probably just
-			 * get stuck in the while loop, but 
+			 * get stuck in the while loop, but
 			 * there we go.
 			 */
 			break;
@@ -155,7 +155,7 @@ void uart_start_tx(void)
 	/*
 	 * if the tx interrupt is already running
 	 * then we need do nothing. Otherwise calling
-	 * the tx handler shoud kick things off 
+	 * the tx handler shoud kick things off
 	 */
 	if(!(*UART_IES(EXC_UART00_BASE) & UART_IES_TE_MSK))
 	{

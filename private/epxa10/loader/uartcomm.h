@@ -1,10 +1,10 @@
 /*
-* 	Copyright (c) Altera Corporation 2002.
-* 	All rights reserved.
+*	Copyright (c) Altera Corporation 2002.
+*	All rights reserved.
 *
 *	UARTComm.h
 *
-*       Function prototypes and definitions to use the UART IO functions
+*	Function prototypes and definitions to use the UART IO functions
 */
 
 #ifndef UARTCOMM_H

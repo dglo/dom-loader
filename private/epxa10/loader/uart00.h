@@ -9,7 +9,7 @@
  * Copyright (c) Altera Corporation 2000.
  * All rights reserved.
  */
- 
+
 #define UART_TX_FIFO_SIZE      (15)
 
 #define UART_RSR(base_addr) (UART00_TYPE (base_addr  + 0x00 ))
@@ -162,11 +162,11 @@
 #define UART_MSR_DCTS_MSK (0x01)
 #define UART_MSR_DCTS_OFST (0)
 
-#define UART_DIV_LO(base_addr) (UART00_TYPE (base_addr  + 0x34 ))
+#define UART_DIV_LO(base_addr) (UART00_TYPE (base_addr	+ 0x34 ))
 #define UART_DIV_LO_DIV_MSK (0xff)
 #define UART_DIV_LO_DIV_OFST (0)
 
-#define UART_DIV_HI(base_addr) (UART00_TYPE (base_addr  + 0x38 ))
+#define UART_DIV_HI(base_addr) (UART00_TYPE (base_addr	+ 0x38 ))
 #define UART_DIV_HI_DIV_MSK (0xff)
 #define UART_DIV_HI_DIV_OFST (0)
 

@@ -1,6 +1,6 @@
 /*
-* 	Copyright (c) Altera Corporation 2002.
-* 	All rights reserved.
+*	Copyright (c) Altera Corporation 2002.
+*	All rights reserved.
 *
 *	C Exception Handlers
 */
@@ -28,7 +28,7 @@ void CSwiHandler(int swi)
 		printf ("Exit\r\n");
 	}
 	else
-	{	
+	{
 		printf("Error swi %x\r\n", swi);
 	}
 }

@@ -1,7 +1,7 @@
 	/* we need a program to load programs from flash
-	 * into locations where redboot is currently located.	
+	 * into locations where redboot is currently located.
 	 * we use the redboot "g" command to load this program
-	 * which copies the binary image in binimg to 
+	 * which copies the binary image in binimg to
 	 */
 	.text
 
@@ -15,7 +15,7 @@ start_:
 	ldr	r0, =5 /* sys_write */
 	ldr	r1, =1 /* standard out */
 	ldr	r2, =buf /* buffer */
-	ldr     r3, =1   /* nbytes */
+	ldr	r3, =1	 /* nbytes */
 	ldr	r15, =0xef180001 /* magic? */
 
 	/* r2 has address of hello.bin
@@ -42,21 +42,21 @@ copy_loop:
 	ldr	r1, =0x04
 	str	r1, [r0]
 	*/
-	
-forever:	
+
+forever:
 	b	forever
-	
+
 	/* start executing from "boot" */
 	mov	pc, #0
 
 	.data
 	.align 4
 hello_begin:
-/*	.INCBIN	"hello.bin"*/
+/*	.INCBIN "hello.bin"*/
 /*	.include "hello.inc" */
 /*	.word	0x01020304 */
 
 buf:	.byte	'!'
-	
+
 hello_end:
 	.align 4

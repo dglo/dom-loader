@@ -22,12 +22,12 @@ REGISTERS	0x7fffc000
 # ebi_clk is the ebi clock up to x16 on the ahb2...
 #
 AHB1		160M
-SDRAM_CLK	20M
+SDRAM_CLK	40M
 EXTERNAL	20M
 EBI_CLK		5M
 
 #
-# sdram timings (micron)...
+# sdram timings (samsung)...
 #
 # all values are in ns
 #
@@ -122,7 +122,7 @@ EBI3_CFG	sync	0	8	yes
 #
 # name	virt addr	phys addr	size	access	domain	cache
 #
-PTE	0x00000000	0x00000000	16	mgr	0	WB
+PTE	0x00000000	0x00000000	32	mgr	0	WB
 PTE	0x10000000	0x10000000	1	mgr	0	WB
 PTE	0x40000000	0x40000000	8	mgr	0	WB
 PTE	0x41000000	0x40000000	8	mgr	0	NCNB

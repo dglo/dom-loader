@@ -16,8 +16,6 @@ static void dcacheInvalidateAll(void);
 static void icacheEnable(void);
 static void icacheDisable(void);
 static void icacheInvalidateAll(void);
-static int readPrefetchFaultStatusRegister(void);
-static int readDataFaultStatusRegister(void);
 
 static int swiwrite(int file, char *ptr, int len);
 static int swiread(int file, char *ptr, int len);
@@ -33,26 +31,13 @@ static int quickHack() {
 }
 
 static int putstr(const char *s) { return swiwrite(0, (char *) s, strlen(s)); }
-static void puthexdigit(int d) {
-   char s[2];
-   int dd = d&0xf;
-   s[1] = 0;
-   s[0] = dd + ((dd<10) ? '0' : 'a');
-   putstr(s);
-}
 
 void CAbtHandler(void) {
-   int fsr = readDataFaultStatusRegister();
-   putstr("Data abort, domain="); puthexdigit((fsr&0xf0) >> 4);
-   putstr(", fault="); puthexdigit(fsr&0xf); putstr(": halted...\r\n");
-   while (1) ;
+   putstr("Data abort\r\n");
 }
 
 void CPabtHandler(void) {
-   int fsr = readPrefetchFaultStatusRegister();
-   putstr("Prefetch abort, domain="); puthexdigit((fsr&0xf0) >> 4);
-   putstr(", fault="); puthexdigit(fsr&0xf); putstr(": halted...\r\n");
-   while (1) ;
+   putstr("Error prefetch abort\r\n");
 }
 
 void CDabtHandler(int *regs) {
@@ -133,13 +118,6 @@ static void writeSerial(char *ptr, int len) {
    }
 }
 
-/* for debugging only! */
-void writeSerialDebug(char *ptr) {
-   int n = 0;
-   while (ptr[n]) n++;
-   if (n) writeSerial(ptr, n);
-}
-
 static int swiwrite(int file, char *ptr, int len) {
    int i;
 
@@ -176,6 +154,19 @@ static int swiwrite(int file, char *ptr, int len) {
    else {
       if (quickHack() || !halIsConsolePresent()) {
 	 int ts = 0;
+	 
+	 if (quickHack()) {
+	    /* send message out...
+	     */
+	    char msg[128];
+	    sprintf(msg, "send: len=%d:  0x%02x 0x%02x 0x%02x 0x%02x ...\r\n", 
+		    len, 
+		    (len>0) ? ptr[0] : 0,
+		    (len>1) ? ptr[1] : 0,
+		    (len>2) ? ptr[2] : 0,
+		    (len>3) ? ptr[3] : 0);
+	    writeSerial(msg, strlen(msg));
+	 }
 
 	 /* no serial power, use DOR for comm...
 	  *
@@ -184,8 +175,8 @@ static int swiwrite(int file, char *ptr, int len) {
 	  */
 	 while (ts<len) {
 	    const int nleft = (len-ts);
-	    const int ns = nleft<4092 ? nleft : 4092;
-	    hal_FPGA_send(0, ns, ptr + ts);
+	    const int ns = nleft<400 ? nleft : 400;
+	    hal_FPGA_TEST_send(0, ns, ptr + ts);
 	    ts+=ns;
 	 }
       }
@@ -218,6 +209,12 @@ static int swiread(int file, char *ptr, int len) {
       static char buffer[1024*4];
       static int bi = 0, bl = 0;
 
+      if (quickHack()) {
+	 char msg[128];
+	 sprintf(msg, "read: bi, bl: %d %d\r\n", bi, bl);
+	 writeSerial(msg, strlen(msg));
+      }
+
       if (bi) {
 	 /* data sitting around? */
 	 const int nb = bl-bi;
@@ -232,8 +229,25 @@ static int swiread(int file, char *ptr, int len) {
       else {
 	 int type;
 
-	 hal_FPGA_receive(&type, &bl, buffer);
+	 if (quickHack()) {
+	    char msg[128];
+	    sprintf(msg, "waiting for a message...\r\n");
+	    writeSerial(msg, strlen(msg));
+	 }
+	 
+	 hal_FPGA_TEST_receive(&type, &bl, buffer);
 
+	 if (quickHack()) {
+	    char msg[128];
+	    sprintf(msg, "received: len=%d: 0x%02x 0x%02x 0x%02x 0x%02x...\r\n",
+		    len,
+		    len>0 ? buffer[0] : 0,
+		    len>1 ? buffer[1] : 0,
+		    len>2 ? buffer[2] : 0,
+		    len>3 ? buffer[3] : 0);
+	    writeSerial(msg, strlen(msg));
+	 }
+	 
 	 if (bl <= len) {
 	    /* whole buffer goes this time... */
 	    memcpy(ptr, buffer, bl);
@@ -408,23 +422,3 @@ static void icacheInvalidateAll(void) {
         : "r1" /* Clobber list */
         );
 }
-
-static int readPrefetchFaultStatusRegister(void) {
-   unsigned reg;
-   
-   asm volatile (
-                 "mrc p15, 0, %0, c5, c0, 1;"
-                 : "=r" (reg));
-   return reg&0xff;
-}
-
-static int readDataFaultStatusRegister(void) {
-   unsigned reg;
-   
-   asm volatile (
-                 "mrc p15, 0, %0, c5, c0, 0;"
-                 : "=r" (reg));
-   return reg&0xff;
-}
-
-

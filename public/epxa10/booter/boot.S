@@ -151,13 +151,7 @@ over_error:
 	ldr	r1, =0x7fffc290
 	ldr	r2, =0x2e
 	str	r2, [r1]	
-
-	# Dummy read from SDRAM before we start writing
-	# This forces the SDRAM init to finish
-	ldr	r3, =0
-	ldr	r5, [r3]
 	
-		
 	#
 	# copy payload to zero, verify and start it up...
 	#

@@ -51,22 +51,23 @@ int main(int argc, char *argv[]) {
       if (ref*m<160000000) continue;
       for (n=1; n<=nmax; n++) {
 	  const int fvco = ref*m/n;
-	  if (fvco>=160000000 && fvco<=600000000) {
-	     for (k=kmin; k<=kmax; k+=kinc) {
-		const int dv = abs( fvco/k - pll );
-		if (diff==-1 || dv<diff) {
-		   diff = dv;
-		   fmax = fvco;
-		   sm = m; sn = n; sk = k;
-		}
-		else if (diff == dv) {
-		   if (fvco>fmax) {
+	  if (fvco<160000000) continue;
+	  if (ref*m/n>=160000000 && ref*m/n<=600000000) {
+	      for (k=kmin; k<=kmax; k+=kinc) {
+		  const int dv = abs( fvco/k - pll );
+		  if (diff==-1 || dv<diff) {
 		      diff = dv;
 		      fmax = fvco;
 		      sm = m; sn = n; sk = k;
-		   }
-		}
-	     }
+		  }
+		  else if (diff == dv) {
+		      if (fvco>fmax) {
+			  diff = dv;
+			  fmax = fvco;
+			  sm = m; sn = n; sk = k;
+		      }
+		  }
+	      }
 	  }
       }
   }

@@ -6,25 +6,28 @@ $(BUILD_DIR)/$(PUB_ROOT)/%.S: %.awk $(CONFIG_FILE)
 	@test -d $(@D) || mkdir -p $(@D)
 	$(GAWK) -f $(<D)/$(COMMON_AWK) -f $(<)  < $(CONFIG_FILE) > $(@D)/$(*F).S
 
-$(BUILD_DIR)/$(PUB_ROOT)/booter/pll.S: booter/pll.awk $(HOST_BIN_DIR)/pllsrch
+$(BUILD_DIR)/$(PUB_ROOT)/booter/pll.S: booter/pll.awk $(BUILD_DIR)/pllsrch
 	@test -d $(@D) || mkdir -p $(@D)
-	$(GAWK) -f $(<D)/$(COMMON_AWK) -f $(<D)/$(*F).awk  < $(<D)/$(CONFIG_AWK) > $(@D)/$(*F).S
+	(cd $(<D); $(GAWK) -f $(COMMON_AWK) -f $(*F).awk  < $(CONFIG_AWK) > $(*F).S)
+	mv $(<D)/$(*F).S $(@D)/$(*F).S
 
-$(HOST_BIN_DIR)/pllsrch : private/epxa10/booter/pllsrch.c
+$(BUILD_DIR)/pllsrch : private/epxa10/booter/pllsrch.c
 	@test -d $(@D) || mkdir -p $(@D)
 	$(HOST_CC) -o $(@) $(<)
 
-$(HOST_BIN_DIR)/mempat : private/epxa10/booter/mempat.c
+$(BUILD_DIR)/mempat : private/epxa10/booter/mempat.c
 	@test -d $(@D) || mkdir -p $(@D)
 	$(HOST_CC) -o $(@) $(<)
 
 $(BUILD_DIR)/crt0.o : crt0.S $(BUILD_DIR)/$(PUB_ROOT)/booter/pte.S $(BUILD_DIR)/$(PUB_ROOT)/booter/epxa.h
-	$(CPP) $(INC_FLAGS) -o $(@D)/$(*F).i $(<)
-	$(AS) $(A_FLAGS) $(INC_FLAGS) -o $(@) $(@D)/$(*F).i
+	$(CPP) $(CPP_FLAGS) -o $(*F).i $(<)
+	$(AS) $(A_FLAGS) $(INC_PATHS) -o $(@) $(*F).i
+	@rm $(*F).i
 
 $(BUILD_DIR)/%.o: %.S
-	$(CPP) $(CPP_FLAGS) -o $(@D)/$(*F).i $(<)
-	$(AS) $(A_FLAGS) -o $(@) $(@D)/$(*F).i
+	$(CPP) $(CPP_FLAGS) -o $(*F).i $(<)
+	$(AS) $(A_FLAGS) -o $(@) $(*F).i
+	@rm $(*F).i
 
 $(BUILD_DIR)/%.elf : $(BUILD_DIR)/%.o
 	$(LD) --script=$(KERNELX) -o $(@) $(<)
@@ -32,7 +35,7 @@ $(BUILD_DIR)/%.elf : $(BUILD_DIR)/%.o
 $(LIB_DIR)/crt0.o : $(BUILD_DIR)/crt0.o
 	cp $(<) $(@)
 
-$(LIB_DIR)/pattern.mem : $(HOST_BIN_DIR)/mempat
+$(LIB_DIR)/pattern.mem : $(BUILD_DIR)/mempat
 	./$(<) > $(@)
 
 $(LIB_DIR)/%.bin : $(BUILD_DIR)/%.elf

@@ -209,7 +209,7 @@ function getmnk(ref, pll, plln) {
      cmd = pllsrch " " device " " ref " " pll " " plln;  
   }
   else {
-     cmd = "../../../../Linux-i386/bin/pllsrch " device " " ref " " pll " " plln;  
+     cmd = "../epxa10/host/pllsrch " device " " ref " " pll " " plln;  
   }
   
   cmd | getline mnk;

@@ -8,8 +8,7 @@ $(BUILD_DIR)/$(PUB_ROOT)/%.S: %.awk $(CONFIG_FILE)
 
 $(BUILD_DIR)/$(PUB_ROOT)/booter/pll.S: booter/pll.awk $(HOST_BIN_DIR)/pllsrch
 	@test -d $(@D) || mkdir -p $(@D)
-	(cd $(<D); $(GAWK) -f $(COMMON_AWK) -f $(*F).awk  < $(CONFIG_AWK) > $(*F).S)
-	mv $(<D)/$(*F).S $(@D)/$(*F).S
+	$(GAWK) -f $(<D)/$(COMMON_AWK) -f $(<D)/$(*F).awk  < $(<D)/$(CONFIG_AWK) > $(@D)/$(*F).S
 
 $(HOST_BIN_DIR)/pllsrch : private/epxa10/booter/pllsrch.c
 	@test -d $(@D) || mkdir -p $(@D)

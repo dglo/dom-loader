@@ -26,3 +26,7 @@ ifeq ("epxa10","$(strip $(PLATFORM))")
   OBJS += $(PUB_OBJS) $(BUILD_DIR)/minimal.elf
   TO_BE_CLEANED += $(PUB_OBJS)
 endif
+
+# THIS IS A FUDGE - due to circulary dependencies between dom-loader and hal. 
+
+INC_PATHS += -I../hal/$(PLATFORM)public -I../hal/public

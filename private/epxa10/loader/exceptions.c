@@ -16,6 +16,8 @@ static void dcacheInvalidateAll(void);
 static void icacheEnable(void);
 static void icacheDisable(void);
 static void icacheInvalidateAll(void);
+static int readPrefetchFaultStatusRegister(void);
+static int readDataFaultStatusRegister(void);
 
 static int swiwrite(int file, char *ptr, int len);
 static int swiread(int file, char *ptr, int len);
@@ -31,13 +33,26 @@ static int quickHack() {
 }
 
 static int putstr(const char *s) { return swiwrite(0, (char *) s, strlen(s)); }
+static void puthexdigit(int d) {
+   char s[2];
+   int dd = d&0xf;
+   s[1] = 0;
+   s[0] = dd + ((dd<10) ? '0' : 'a');
+   putstr(s);
+}
 
 void CAbtHandler(void) {
-   putstr("Data abort\r\n");
+   int fsr = readDataFaultStatusRegister();
+   putstr("Data abort, domain="); puthexdigit((fsr&0xf0) >> 4);
+   putstr(", fault="); puthexdigit(fsr&0xf); putstr(": halted...\r\n");
+   while (1) ;
 }
 
 void CPabtHandler(void) {
-   putstr("Error prefetch abort\r\n");
+   int fsr = readPrefetchFaultStatusRegister();
+   putstr("Prefetch abort, domain="); puthexdigit((fsr&0xf0) >> 4);
+   putstr(", fault="); puthexdigit(fsr&0xf); putstr(": halted...\r\n");
+   while (1) ;
 }
 
 void CDabtHandler(int *regs) {
@@ -169,7 +184,7 @@ static int swiwrite(int file, char *ptr, int len) {
 	  */
 	 while (ts<len) {
 	    const int nleft = (len-ts);
-	    const int ns = nleft<400 ? nleft : 400;
+	    const int ns = nleft<4092 ? nleft : 4092;
 	    hal_FPGA_TEST_send(0, ns, ptr + ts);
 	    ts+=ns;
 	 }
@@ -393,3 +408,23 @@ static void icacheInvalidateAll(void) {
         : "r1" /* Clobber list */
         );
 }
+
+static int readPrefetchFaultStatusRegister(void) {
+   unsigned reg;
+   
+   asm volatile (
+                 "mrc p15, 0, %0, c5, c0, 1;"
+                 : "=r" (reg));
+   return reg&0xff;
+}
+
+static int readDataFaultStatusRegister(void) {
+   unsigned reg;
+   
+   asm volatile (
+                 "mrc p15, 0, %0, c5, c0, 0;"
+                 : "=r" (reg));
+   return reg&0xff;
+}
+
+

@@ -205,7 +205,13 @@ function getmnk(ref, pll, plln) {
       exit(1);	     
   }
 
-  cmd = "../../../../epxa10/build/dom-loader/pllsrch " device " " ref " " pll " " plln;  
+  if (pllsrch!=0) {
+     cmd = pllsrch " " device " " ref " " pll " " plln;  
+  }
+  else {
+     cmd = "../../../../epxa10/build/dom-loader/pllsrch " device " " ref " " pll " " plln;  
+  }
+  
   cmd | getline mnk;
 
   return mnk;

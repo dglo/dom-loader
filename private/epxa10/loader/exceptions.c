@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "booter/epxa.h"
+#include "hal/DOM_MB_hal.h"
 
 static void dcacheEnable(void);
 static void dcacheDisable(void);
@@ -19,6 +20,15 @@ static void icacheInvalidateAll(void);
 static int swiwrite(int file, char *ptr, int len);
 static int swiread(int file, char *ptr, int len);
 static int swierrno = 0;
+
+static int quickHack() {
+#if defined(CPLD_ADDR)
+   volatile unsigned char *p = (volatile unsigned char *) 0x50000009;
+   return *p & 0x80;
+#else
+   return 0;
+#endif
+}
 
 static int putstr(const char *s) { return swiwrite(0, (char *) s, strlen(s)); }
 
@@ -99,6 +109,15 @@ void CUdefHandler(void) {
 #include "uartcomm.h"
 #include "uart00.h"
 
+static void writeSerial(char *ptr, int len) {
+   int i;
+   
+   for (i=0; i<len; i++) {
+      while((*UART_TSR(EXC_UART00_BASE) & UART_TSR_TX_LEVEL_MSK)>=15) ;
+      *UART_TD(EXC_UART00_BASE) = ptr[i];
+   }
+}
+
 static int swiwrite(int file, char *ptr, int len) {
    int i;
 
@@ -133,13 +152,50 @@ static int swiwrite(int file, char *ptr, int len) {
       }
    }
    else {
-      for (i=0; i<len; i++) {
-	 while((*UART_TSR(EXC_UART00_BASE) & UART_TSR_TX_LEVEL_MSK)>=15) ;
-	 *UART_TD(EXC_UART00_BASE) = ptr[i];
+      if (quickHack() || !halIsConsolePresent()) {
+	 int ts = 0;
+	 
+	 if (quickHack()) {
+	    /* send message out...
+	     */
+	    char msg[128];
+	    sprintf(msg, "send: len=%d:  0x%02x 0x%02x 0x%02x 0x%02x ...\r\n", 
+		    len, 
+		    (len>0) ? ptr[0] : 0,
+		    (len>1) ? ptr[1] : 0,
+		    (len>2) ? ptr[2] : 0,
+		    (len>3) ? ptr[3] : 0);
+	    writeSerial(msg, strlen(msg));
+	 }
+
+	 /* no serial power, use DOR for comm...
+	  *
+	  * FIXME: DOR firmware only supports 400 byte
+	  * packets for now...
+	  */
+	 while (ts<len) {
+	    const int nleft = (len-ts);
+	    const int ns = nleft<400 ? nleft : 400;
+	    hal_FPGA_TEST_send(0, ns, ptr + ts);
+	    ts+=ns;
+	 }
       }
+      else writeSerial(ptr, len);
    }
    
    return 0;
+}
+
+static int readSerial(char *ptr, int len) {
+   int nr = 0;
+   while (1) { 
+      while ((*UART_RSR(EXC_UART00_BASE) & UART_RSR_RX_LEVEL_MSK) && nr<len) {
+	 ptr[nr] = *UART_RD(EXC_UART00_BASE);
+	 nr++;
+      }
+      if (nr>0) break;
+   }
+   return nr;
 }
 
 /* Read from a file. This is always interpreted as a read from
@@ -149,13 +205,64 @@ static int swiwrite(int file, char *ptr, int len) {
 static int swiread(int file, char *ptr, int len) {
    int nr = 0;
 
-   while (1) { 
-      while ((*UART_RSR(EXC_UART00_BASE) & UART_RSR_RX_LEVEL_MSK) && 
-	     nr<=len) {
-	 ptr[nr] = *UART_RD(EXC_UART00_BASE);
-	 nr++;
+   if (quickHack() || !halIsConsolePresent() ) {
+      static char buffer[1024*4];
+      static int bi = 0, bl = 0;
+
+      if (quickHack()) {
+	 char msg[128];
+	 sprintf(msg, "read: bi, bl: %d %d\r\n", bi, bl);
+	 writeSerial(msg, strlen(msg));
       }
-      if (nr>0) break;
+
+      if (bi) {
+	 /* data sitting around? */
+	 const int nb = bl-bi;
+	 const int nc = (nb < len) ? nb : len;
+	 memcpy(ptr, buffer + bi, nc);
+	 bi+=nc;
+	 if (bi>=bl) {
+	    bi = bl = 0;
+	 }
+	 nr = nc;
+      }
+      else {
+	 int type;
+
+	 if (quickHack()) {
+	    char msg[128];
+	    sprintf(msg, "waiting for a message...\r\n");
+	    writeSerial(msg, strlen(msg));
+	 }
+	 
+	 hal_FPGA_TEST_receive(&type, &bl, buffer);
+
+	 if (quickHack()) {
+	    char msg[128];
+	    sprintf(msg, "received: len=%d: 0x%02x 0x%02x 0x%02x 0x%02x...\r\n",
+		    len,
+		    len>0 ? buffer[0] : 0,
+		    len>1 ? buffer[1] : 0,
+		    len>2 ? buffer[2] : 0,
+		    len>3 ? buffer[3] : 0);
+	    writeSerial(msg, strlen(msg));
+	 }
+	 
+	 if (bl <= len) {
+	    /* whole buffer goes this time... */
+	    memcpy(ptr, buffer, bl);
+	    nr = bl;
+	    bi = bl = 0;
+	 }
+	 else {
+	    memcpy(ptr, buffer, len);
+	    bi = len;
+	    nr = len;
+	 }
+      }
+   }
+   else {
+      nr = readSerial(ptr, len);
    }
    
    return len - nr;
@@ -315,9 +422,3 @@ static void icacheInvalidateAll(void) {
         : "r1" /* Clobber list */
         );
 }
-
-
-
-
-
-

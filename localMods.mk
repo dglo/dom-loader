@@ -29,6 +29,4 @@ endif
 
 # THIS IS A FUDGE - due to circulary dependencies between dom-loader and hal. 
 
-FUDGE_INCS := ../hal/$(PLATFORM)/public ../hal/public
-INC_PATHS += $(FUDGE_INCS)
-C_FLAGS += $(patsubst %,-I%, $(FUDGE_INCS))
+INC_PATHS += -I../hal/$(PLATFORM)public -I../hal/public

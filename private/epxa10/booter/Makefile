@@ -1,9 +1,9 @@
 #
 # pick your config file here...
 #
-#CONFIG = config.dom-mb.micron
+CONFIG = config.dom-mb.micron
 #CONFIG = config.dom-mb
-CONFIG = config.dom-mb.epxa4
+#CONFIG = config.dom-mb.epxa4
 #CONFIG = config.epxa1
 
 AUTOS = mmap.S sdram.S ebi.S pll.S iocontrol.S uart.S pte.S asm.S
@@ -24,7 +24,7 @@ AUTOS = mmap.S sdram.S ebi.S pll.S iocontrol.S uart.S pte.S asm.S
 
 all: config_files bin
 
-config_files: $(EPXAH) $(PTES) configboot-epxa.h configboot-pte.S
+config_files: $(EPXAH) $(PTES)
 
 bin: $(ICEBOOTHEX) $(ICEBOOTBINGZ)
 
@@ -57,14 +57,6 @@ $(PTES): pte.S
 epxa.h: epxa.awk $(CONFIG)
 $(EPXAH): epxa.h
 	cp -v epxa.h $(EPXAH)
-
-configboot-epxa.h: epxa.awk config.dom-mb.configboot
-	gawk -f common.awk -f epxa.awk < config.dom-mb.configboot > \
-		configboot-epxa.h
-
-configboot-pte.S: pte.awk config.dom-mb.configboot
-	gawk -f common.awk -f pte.awk < config.dom-mb.configboot > \
-		configboot-pte.S
 
 boot.o : boot.S $(AUTOS) pattern.mem $(SFIBIN) minimal.bin
 	$(CPP) $(CPPFLAGS) -DBINFILE=\"$(SFIBIN)\" -o boot.i boot.S

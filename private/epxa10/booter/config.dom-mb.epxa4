@@ -21,7 +21,7 @@ REGISTERS	0x7fffc000
 # external is the external clock (CLK_REF)
 # ebi_clk is the ebi clock up to x16 on the ahb2...
 #
-AHB1		80M
+AHB1		160M
 SDRAM_CLK	40M
 EXTERNAL	20M
 EBI_CLK		5M
@@ -77,8 +77,8 @@ UART_SETTINGS	115200	N	8	1	none	on
 # 
 # name		address		size		prefetch
 #
-SDRAM1_MAP	0x00000000	0x01000000	yes
-SDRAM0_MAP	0x01000000	0x01000000	yes
+SDRAM0_MAP	0x00000000	0x01000000	yes
+SDRAM1_MAP	0x01000000	0x01000000	yes
 
 SRAM0_MAP	0x10000000	0x00010000	yes
 SRAM1_MAP	0x10010000	0x00010000	yes

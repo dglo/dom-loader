@@ -118,6 +118,13 @@ static void writeSerial(char *ptr, int len) {
    }
 }
 
+/* for debugging only! */
+void writeSerialDebug(char *ptr) {
+   int n = 0;
+   while (ptr[n]) n++;
+   if (n) writeSerial(ptr, n);
+}
+
 static int swiwrite(int file, char *ptr, int len) {
    int i;
 
@@ -154,19 +161,6 @@ static int swiwrite(int file, char *ptr, int len) {
    else {
       if (quickHack() || !halIsConsolePresent()) {
 	 int ts = 0;
-	 
-	 if (quickHack()) {
-	    /* send message out...
-	     */
-	    char msg[128];
-	    sprintf(msg, "send: len=%d:  0x%02x 0x%02x 0x%02x 0x%02x ...\r\n", 
-		    len, 
-		    (len>0) ? ptr[0] : 0,
-		    (len>1) ? ptr[1] : 0,
-		    (len>2) ? ptr[2] : 0,
-		    (len>3) ? ptr[3] : 0);
-	    writeSerial(msg, strlen(msg));
-	 }
 
 	 /* no serial power, use DOR for comm...
 	  *
@@ -209,12 +203,6 @@ static int swiread(int file, char *ptr, int len) {
       static char buffer[1024*4];
       static int bi = 0, bl = 0;
 
-      if (quickHack()) {
-	 char msg[128];
-	 sprintf(msg, "read: bi, bl: %d %d\r\n", bi, bl);
-	 writeSerial(msg, strlen(msg));
-      }
-
       if (bi) {
 	 /* data sitting around? */
 	 const int nb = bl-bi;
@@ -229,25 +217,8 @@ static int swiread(int file, char *ptr, int len) {
       else {
 	 int type;
 
-	 if (quickHack()) {
-	    char msg[128];
-	    sprintf(msg, "waiting for a message...\r\n");
-	    writeSerial(msg, strlen(msg));
-	 }
-	 
 	 hal_FPGA_TEST_receive(&type, &bl, buffer);
 
-	 if (quickHack()) {
-	    char msg[128];
-	    sprintf(msg, "received: len=%d: 0x%02x 0x%02x 0x%02x 0x%02x...\r\n",
-		    len,
-		    len>0 ? buffer[0] : 0,
-		    len>1 ? buffer[1] : 0,
-		    len>2 ? buffer[2] : 0,
-		    len>3 ? buffer[3] : 0);
-	    writeSerial(msg, strlen(msg));
-	 }
-	 
 	 if (bl <= len) {
 	    /* whole buffer goes this time... */
 	    memcpy(ptr, buffer, bl);

@@ -21,8 +21,8 @@ REGISTERS	0x7fffc000
 # external is the external clock (CLK_REF)
 # ebi_clk is the ebi clock up to x16 on the ahb2...
 #
-AHB1		80M
-SDRAM_CLK	40M
+AHB1		160M
+#SDRAM_CLK	40M
 EXTERNAL	20M
 EBI_CLK		5M
 
@@ -38,21 +38,21 @@ EBI_CLK		5M
 #  WIDTH is in bits
 #  DDR is 0 (no) or 1 (yes)
 #
-RCD	1CK
-RAS	50ns
-RRD	20ns
-RP	20ns
-WR	15ns
-RC	100ns
-BL	8
-RFC	100ns
-RFSH	15625ns
+#RCD	1CK
+#RAS	50ns
+#RRD	20ns
+#RP	20ns
+#WR	15ns
+#RC	100ns
+#BL	8
+#RFC	100ns
+#RFSH	15625ns
 #RFSH    7500
-ROW	12
-COL	8
-WIDTH	32
-CAS	3
-DDR	0
+#ROW	12
+#COL	8
+#WIDTH	32
+#CAS	3
+#DDR	0
 
 #
 # iocontrol registers, page 167...
@@ -77,11 +77,11 @@ UART_SETTINGS	115200	N	8	1	none	on
 # 
 # name		address		size		prefetch
 #
-SDRAM1_MAP	0x00000000	0x01000000	yes
-SDRAM0_MAP	0x01000000	0x01000000	yes
+#SDRAM1_MAP	0x00000000	0x01000000	yes
+#SDRAM0_MAP	0x01000000	0x01000000	yes
 
-SRAM0_MAP	0x10000000	0x00010000	yes
-SRAM1_MAP	0x10010000	0x00010000	yes
+SRAM0_MAP	0x00000000	0x00010000	yes
+SRAM1_MAP	0x00010000	0x00010000	yes
 
 EBI0_MAP	0x40000000	0x00400000	yes
 EBI1_MAP	0x40400000	0x00400000	yes
@@ -122,8 +122,8 @@ EBI3_CFG	sync	0	8	yes
 #
 # name	virt addr	phys addr	size	access	domain	cache
 #
-PTE	0x00000000	0x00000000	32	mgr	0	WB
-PTE	0x10000000	0x10000000	1	mgr	0	WB
+PTE	0x00000000	0x00000000	1	mgr	0	WB
+#PTE	0x10000000	0x10000000	1	mgr	0	WB
 PTE	0x40000000	0x40000000	8	mgr	0	WB
 PTE	0x41000000	0x40000000	8	mgr	0	NCNB
 PTE	0x50000000	0x50000000	1	mgr	0	NCNB
@@ -132,3 +132,10 @@ PTE	0x7fffc000	0x7fffc000	1	mgr	0	NCNB
 PTE	0x80000000	0x80000000	1	mgr	0	NCNB
 PTE	0x90000000	0x90000000	8	mgr	0	NCNB
 
+#
+# set the stack location manually, it is in
+# a slightly different place than in the standard
+# configuration as there is no need to split sdram
+# in two...
+#
+STACK_LOCATION	0x20000

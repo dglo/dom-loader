@@ -45,3 +45,8 @@ $(LIBK) : $(KOBJS)
 $(CRT0) : crt0.S $(PTES) $(EPXAH)
 	$(CPP) $(CPPFLAGS) -o crt0.i crt0.S
 	$(AS) $(AFLAGS) -o $(CRT0) crt0.i
+
+
+
+
+

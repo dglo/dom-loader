@@ -24,9 +24,11 @@ ifeq ("epxa10","$(strip $(PLATFORM))")
   BUILT_FILES += $(AWK_HDR_TARGETS) $(PUB_AWK_ASBL_TARGETS)
   PUB_OBJS += $(patsubst %,$(LIB_DIR)/%, crt0.o pattern.mem minimal.bin)
   OBJS += $(PUB_OBJS) $(BUILD_DIR)/minimal.elf
-  TO_BE_CLEANED += $(PUB_OBJS)
+  TO_BE_CLEANED += $(PUB_OBJS) $(HOST_BIN_DIR)/pllsrch $(HOST_BIN_DIR)/mempat
 endif
 
 # THIS IS A FUDGE - due to circulary dependencies between dom-loader and hal. 
 
-INC_PATHS += -I../hal/$(PLATFORM)public -I../hal/public
+FUDGE_INCS := ../hal/$(PLATFORM)/public ../hal/public
+INC_PATHS += $(FUDGE_INCS)
+C_FLAGS += $(patsubst %,-I%, $(FUDGE_INCS))

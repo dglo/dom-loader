@@ -1,5 +1,3 @@
-HOST_CC := cc
-
 GAWK := gawk
 COMMON_AWK := common.awk
 ASBL_SUFFIX := S

@@ -37,13 +37,19 @@
 
 	/* System memory locations
 	 */
+#if !defined(EPXA_STACK_LOCATION)
 #define RAM_Limit       (MEMORY_SIZE/2) /* we get half, fpga gets half... */
+#else
+#define RAM_Limit       (EPXA_STACK_LOCATION)
+#endif
+
 #define SVC_Stack	RAM_Limit	/* 8K SVC stack at top of memory */
 #define IRQ_Stack	RAM_Limit-8192	/* followed by  1k IRQ stack */
 #define ABT_Stack	IRQ_Stack-1024	/* followed by  1k ABT stack */
 #define FIQ_Stack	ABT_Stack-1024	/* followed by	1k FIQ stack */
 #define UNDEF_Stack	FIQ_Stack-1024	/* followed by	1k UNDEF stack */
 #define USR_Stack	UNDEF_Stack-1024	/* followed by  USR stack */
+
 
 	.section .init
 				

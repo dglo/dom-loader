@@ -22,12 +22,12 @@ REGISTERS	0x7fffc000
 # ebi_clk is the ebi clock up to x16 on the ahb2...
 #
 AHB1		160M
-SDRAM_CLK	20M
+SDRAM_CLK	40M
 EXTERNAL	20M
 EBI_CLK		5M
 
 #
-# sdram timings (micron)...
+# sdram timings (samsung)...
 #
 # all values are in ns
 #
@@ -77,8 +77,8 @@ UART_SETTINGS	115200	N	8	1	none	on
 # 
 # name		address		size		prefetch
 #
-SDRAM0_MAP	0x00000000	0x01000000	yes
-SDRAM1_MAP	0x01000000	0x01000000	yes
+SDRAM0_MAP	0x00000000	0x00800000	no
+SDRAM1_MAP	0x00800000	0x00800000	yes
 
 SRAM0_MAP	0x10000000	0x00004000	yes
 SRAM1_MAP	0x10004000	0x00004000	yes

@@ -1,4 +1,5 @@
-C_BIN_NAMES := 
-C_EXCLUDE_NAMES := epxa10 fis main mkinc pllsrch mempat
+C_BIN_NAMES :=
 USES_PROJECTS :=
 USES_TOOLS := z
+
+include ../resources/standard.mk

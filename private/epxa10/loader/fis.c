@@ -1,7 +1,6 @@
 /* simple fis routines -- copied from redboot...
  *
  */
-#include <stdio.h>
 #include <string.h>
 
 #include "fis.h"
@@ -27,11 +26,11 @@ void fis_list(void) {
    for (i = 0;  i < block_size/sizeof(*img);  i++, img++) {
       if (img->name[0] != (unsigned char)0xFF) {
 	 printf("%-16s  0x%08lX  0x%08lX  0x%08lX  0x%08lX\r\n", 
-		img->name,
-		(unsigned long) img->flash_base, 
-		(unsigned long) img->mem_base, 
+		img->name, 
+		img->flash_base, 
+		img->mem_base, 
 		img->size, 
-		(unsigned long) img->entry_point);
+		img->entry_point);
       }
    }
 }

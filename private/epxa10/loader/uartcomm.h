@@ -1,18 +1,15 @@
 /*
-*	Copyright (c) Altera Corporation 2002.
-*	All rights reserved.
+* 	Copyright (c) Altera Corporation 2002.
+* 	All rights reserved.
 *
 *	UARTComm.h
 *
-*	Function prototypes and definitions to use the UART IO functions
+*       Function prototypes and definitions to use the UART IO functions
 */
 
 #ifndef UARTCOMM_H
 #define UARTCOMM_H
 
-#include "booter/epxa.h"
-
-#define EXC_UART00_BASE (REGISTERS + 0x280)
 
 #define BUFF_SIZE	16384
 #define BUFF_MASK	0x3FFF

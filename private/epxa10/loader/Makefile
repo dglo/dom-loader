@@ -1,53 +1,20 @@
-.SUFFIXES: .c .o .S .elf .srec .bin .gz
+AFLAGS = -mcpu=arm920t
 
-.c.o:
-	$(CC) -c $(CFLAGS) $<
+AS = arm-elf-as
+LD = arm-elf-ld --script=raw.x
+OBJCOPY = arm-elf-objcopy
 
-.S.o:
-	$(CPP) $(CPPFLAGS) -o $*.i $<
-	$(AS) $(AFLAGS) -o $*.o $*.i
-
-.elf.srec:
-	$(OBJCOPY) -O binary $*.elf $*.bin
-	$(CPP) $(CPPFLAGS) -DBINFILE=\"$*.bin\" -o $*-raw.i $(RAWS)
-	$(AS) $(AFLAGS) -o $*-raw.o $*-raw.i
-	$(LD) --script=$(RAWX) -o $*-raw.elf $*-raw.o
-	$(OBJCOPY) -O srec $*-raw.elf $*.srec
-
-.elf.bin:
-	$(OBJCOPY) -O binary $*.elf $*.bin
-	$(CPP) $(CPPFLAGS) -DBINFILE=\"$*.bin\" -o $*-raw.i $(RAWS)
-	$(AS) $(AFLAGS) -o $*-raw.o $*-raw.i
-	$(LD) --script=$(RAWX) -o $*-raw.elf $*-raw.o
-	$(OBJCOPY) -O binary $*-raw.elf $*.bin
-
-all: $(CRT0) $(LIBK)
-
+all: raw.srec
 clean:
-	rm -f *.o *.i *.bin *.elf *.hex *.gz
+	rm -f raw.srec raw.elf *.o 
+raw.srec: raw.elf
+	$(OBJCOPY) -O srec raw.elf raw.srec
 
-KOBJS = exceptions.o irq.o
-OBJS = $(KOBJS) main.o
+raw.elf: raw.o
+	$(LD) -o raw.elf raw.o
 
-exceptions.o: exceptions.c $(EPXAH)
-irq.o: irq.c $(EPXAH)
+raw.o: raw.S
+	$(AS) $(AFLAGS) -o raw.o raw.S
 
-main_flash.hex: main.elf
-	$(OBJCOPY) -O ihex main.elf main_flash.hex
-
-main.elf: $(KOBJS) main.o
-	$(LD) --script=$(KERNELX) -o main.elf $(OBJS) $(SYSLIBS)
-
-$(LIBK) : $(KOBJS)
-	$(AR) rv $(LIBK) $(KOBJS)
-
-$(CRT0) : crt0.S $(PTES) $(EPXAH)
-	$(CPP) $(CPPFLAGS) -o crt0.i crt0.S
-	$(AS) $(AFLAGS) -o $(CRT0) crt0.i
-
-
-
-
-
-
-
+mkinc: mkinc.c
+	gcc -o mkinc mkinc.c

@@ -6,11 +6,11 @@
  *
  */
 #include "stripe.h"
-
+	
 .text
 	.align	2
 	.global setupSDRAM
-	.type	setupSDRAM,function
+	.type   setupSDRAM,function
 
 setupSDRAM:
 	@ args = -0, pretend = 0, frame = 4
@@ -26,7 +26,7 @@ setupSDRAM:
 	adr	r2, CACHE_THIS_CODE_END
 	adr	r3, CACHE_THIS_CODE2_START
 	adr	r4, CACHE_THIS_CODE2_END
-
+	
 SDR_Load_Cache:
 	mcr	p15, 0, r1, c7, c13, 1
 	add	r1, r1, #8
@@ -69,7 +69,7 @@ CACHE_THIS_CODE_START:
 	str	r5, [r0]
 	ldr	r9,=63
 	bl	WAIT_FUNCTION
-
+	
 CACHE_THIS_CODE_END:
 
 	ldmea	fp, {fp, sp, pc}

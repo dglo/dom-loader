@@ -23,6 +23,7 @@ char tx_buffer[BUFF_SIZE];
 char rx_buffer[BUFF_SIZE];
 volatile int tx_head,tx_tail,rx_head,rx_tail;
 
+#if 0
 void uart_init(void)
 {
     /* setup the rx and tx circular buffers */
@@ -66,7 +67,7 @@ void uart_init(void)
 	*UART_IES(EXC_UART00_BASE)=0;
 #endif
 }
-
+#endif
 
 static void uart_tx_handler(void)
 {

@@ -26,12 +26,11 @@ all: $(CRT0) $(LIBK)
 clean:
 	rm -f *.o *.i *.bin *.elf *.hex *.gz
 
-KOBJS = exceptions.o irq.o uartcomm.o
+KOBJS = exceptions.o irq.o
 OBJS = $(KOBJS) main.o
 
 exceptions.o: exceptions.c $(EPXAH)
 irq.o: irq.c $(EPXAH)
-uartcomm.o: uartcomm.c $(EPXAH)
 
 main_flash.hex: main.elf
 	$(OBJCOPY) -O ihex main.elf main_flash.hex
@@ -45,6 +44,8 @@ $(LIBK) : $(KOBJS)
 $(CRT0) : crt0.S $(PTES) $(EPXAH)
 	$(CPP) $(CPPFLAGS) -o crt0.i crt0.S
 	$(AS) $(AFLAGS) -o $(CRT0) crt0.i
+
+
 
 
 

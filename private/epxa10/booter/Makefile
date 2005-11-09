@@ -10,7 +10,7 @@ AUTOS = mmap.S sdram.S ebi.S pll.S iocontrol.S uart.S pte.S asm.S
 
 .SUFFIXES: .c .o .S .elf .awk .h
 
-%.o : %.c *.h
+.c.o:
 	$(CC) -c $(CFLAGS) $<
 
 .S.o:

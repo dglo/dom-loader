@@ -1,6 +1,6 @@
 .SUFFIXES: .c .o .S .elf .srec .bin .gz
 
-%.o : %.c *.h
+.c.o:
 	$(CC) -c $(CFLAGS) $<
 
 .S.o:

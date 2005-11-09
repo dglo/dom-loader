@@ -1,19 +1,7 @@
 function numericValue(v) {
   idx = match(v, "0x[0-9a-fA-F]*");
-  if ( idx != 0 ) {
-    str = "0123456789ABCDEF";
-    sum = 0;
-    mult = 1;
-    for (i=length(v); i>2; i--) {
-      si = index(str, toupper(substr(v, i, 1)));
-      if ( si != 0 ) {
-	sum = sum + (si-1)*mult;
-      }
-      mult = mult*16;
-    }
-    v = sum;
-  }
-
+  if ( idx != 0 ) { v = strtonum(v); }
+  
   idx = match(v, "[0-9]*[mM]$");
   if ( idx != 0 ) {
     v = substr(v, 1, length(v)-1);
@@ -57,31 +45,6 @@ function simplify(num, den) {
   for (j in dar) { if (dar[j]>0) dprod *= dar[j]; }
 
   return nprod " " dprod;
-}
-
-function or(v1, v2) {
-  ret = 0;
-  for (i=0; i<32; i++) {
-    set = 0;
-    bit = int(2^(31-i));
-    v1d = int(v1/bit);
-    v2d = int(v2/bit);
-    if (v1d != 0 ) {
-      v1 = int(v1 - bit);
-      set = 1;
-    }
-    if (v2d != 0) {
-      v2 = int(v2 - bit);
-      set = 1;
-    }
-    if (set) ret += bit;
-  }
-  return ret;
-}
-
-function lshift(v1, amnt) {
-  mult = int(2 ^ amnt);
-  return ( int(v1 * mult));
 }
 
 function ldreg(reg, val) {

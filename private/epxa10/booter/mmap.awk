@@ -59,6 +59,27 @@ BEGIN {
   dpsram0_map = mapreg($2, $3, $4);
 }
 
+/^DPSRAM1_MAP/ {
+  dpsram1_addr = numericValue($2);
+  dpsram1_map = mapreg($2, $3, $4);
+}
+
+/^PLD0_MAP/ {
+   pld0_map = mapreg($2, $3, $4);
+}
+
+/^PLD1_MAP/ {
+   pld1_map = mapreg($2, $3, $4);
+}
+
+/^PLD2_MAP/ {
+   pld2_map = mapreg($2, $3, $4);
+}
+
+/^PLD3_MAP/ {
+   pld3_map = mapreg($2, $3, $4);
+}
+
 END {
   if (regs == 0) {
     print("can't find registers parameter!");

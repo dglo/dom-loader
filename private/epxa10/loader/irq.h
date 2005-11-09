@@ -1,10 +1,10 @@
 /*
-* 	Copyright (c) Altera Corporation 2002.
-* 	All rights reserved.
+*	Copyright (c) Altera Corporation 2002.
+*	All rights reserved.
 *
 *	IRQ.h
 *
-*       Function prototypes and definitions to use the Interrupt handling routines
+*	Function prototypes and definitions to use the Interrupt handling routines
 */
 
 #ifndef IRQ_H

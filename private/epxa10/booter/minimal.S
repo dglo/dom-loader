@@ -21,8 +21,6 @@
  * 7. Branch to main
  *
  */
-#include "stripe.h"
-
 #define Mode_USR	0x10
 #define Mode_FIQ	0x11
 #define Mode_IRQ	0x12

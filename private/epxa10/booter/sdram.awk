@@ -48,7 +48,7 @@ BEGIN {
 /^RAS/ { ras = nstoclks($2, 1, 8); }
 /^RRD/ { rrd = nstoclks($2, 1, 4); }
 /^RP/ { rp = nstoclks($2, 1, 4); }
-/^WR/ { wr = numericValue($2); }
+/^WR/ { wr = nstoclks($2, 1, 3); }
 /^RC/ { rc = nstoclks($2, 1, 10); }
 /^BL/ { 
   bl = numericValue($2);
@@ -102,9 +102,9 @@ END {
   #
   # wait 100us after pll2 is locked...
   #
-  printf("\t#\n\t# wait 100us for pll2 to lock\n\t#\n");
+  printf("\t#\n\t# wait 200us for pll2 to lock\n\t#\n");
   printf("\tldr\t\tr0, =0x%x\n", (regs+numericValue("0x328")));
-  printf("\tldr\t\tr1, =%u\n", (100 * ahb1/1000000));
+  printf("\tldr\t\tr1, =%u\n", (200 * ahb1/1000000));
   printf("\tldr\t\tr2, [r0]\n");
   printf("\tadd\t\tr2, r2, r1\n");
   printf("wait_ahb1:\n");
@@ -163,9 +163,12 @@ END {
   printf("\tldr\t\tr5, =0xa000\n");
 
   if (device == "epxa10") {
-    printf("\tldr\t\tr6, =0x%x\n", (regs+numericValue("0x328")));
-    printf("\tldr\t\tr9, =%u\n", int(50*ahb1/sdram));
+      printf("\tldr\t\tr6, =0x%x\n", (regs+numericValue("0x328")));
+      printf("\tldr\t\tr9, =%u\n", int(50*ahb1/sdram));
   }
+#  else {
+#    printf("\tldr\t\tr9, =%u\n", int(5*ahb1/sdram));
+#  }
 
   printf("CACHE_THIS_CODE_START:\n");
   printf("\tldr\t\tr0, =0x%x\n", (regs+numericValue("0x41c")));
@@ -174,19 +177,19 @@ END {
   printf("\tstr\t\tr1, [r0]\n");
 
   printf("\tstr\t\tr3, [r0]\n");
-  wait50clks();
+  waitclks();
   printf("\n");
  
   printf("\tstr\t\tr4, [r0]\n");
-  wait50clks();
+  waitclks();
   printf("\n");
 
   printf("\tstr\t\tr4, [r0]\n");
-  wait50clks();
+  waitclks();
   printf("\n");
 
   printf("\tstr\t\tr5, [r0]\n");
-  wait50clks();
+  waitclks();
   printf("\n");
 
   printf("CACHE_THIS_CODE_END:\n\n");
@@ -197,26 +200,49 @@ END {
   #printf("\t#\n\t# now map sdram to 0x20000000\n\t#\n");
   #ldreg("0xb0", or(numericValue("0x20000001"), lshift(22, 7)));
 }
-
   
+#
+# convert ns to clocks, check for tailing CK or ns...
+#
 function nstoclks(ns, mnv, mxv) {
-  ns = numericValue(ns);
+    isCK = 0;
 
-  nc = ns*sdram/1000000000;
-  clks = (nc != int(nc)) ? int(nc) + 1 : int(nc);
-  if (clks<mnv)      clks = mnv;
-  else if (clks>mxv) clks = mxv;
-  return clks;
+    if ( (idx = match(ns, "ns")) != 0) {
+	ns = substr(ns, 1, idx-1);
+    }
+    else if ((idx = match(ns, "CK"))!=0) {
+	isCK = 1;
+	ns = substr(ns, 1, idx-1);
+    }
+    
+    if ( isCK ) {
+	clks = numericValue(ns);
+    }
+    else {
+	ns = numericValue(ns);
+    
+	nc = ns*sdram/1000000000;
+	clks = (nc != int(nc)) ? int(nc) + 1 : int(nc);
+    }
+
+    if (clks<mnv)      clks = mnv;
+    else if (clks>mxv) clks = mxv;
+    
+    return clks;
 }
 
-function wait50clks() {
+function waitclks() {
   if (device == "epxa10") {
     printf("\tldr\t\tr7, [r6]\n");
     printf("\tadd\t\tr7, r7, r9\n");
     printf("loopcnt" loopcnt ":\n");
-    loopcnt++;
     printf("\tldr\t\tr8, [r6]\n");
     printf("\tcmp\t\tr7, r8\n");
     printf("\tbhi\t\tloopcnt" loopcnt "\n");
+    loopcnt++;
   }
 }
+
+
+
+

@@ -45,7 +45,7 @@ END {
   k1 = ar[3];
   chkparms(external, n1, m1, k1, 1);
 
-  split( getmnk(external, ahb1*2, 2), ar, " ");
+  split( getmnk(external, sdram*2, 2), ar, " ");
   m2 = ar[1];
   n2 = ar[2];
   k2 = ar[3];
@@ -205,7 +205,13 @@ function getmnk(ref, pll, plln) {
       exit(1);	     
   }
 
-  cmd = "./pllsrch " device " " ref " " pll " " plln;  
+  if (pllsrch!=0) {
+     cmd = pllsrch " " device " " ref " " pll " " plln;  
+  }
+  else {
+     cmd = "../epxa10/host/pllsrch " device " " ref " " pll " " plln;  
+  }
+  
   cmd | getline mnk;
 
   return mnk;

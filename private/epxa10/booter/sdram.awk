@@ -162,10 +162,12 @@ END {
   printf("\tldr\t\tr4, =0x8800\n");
   printf("\tldr\t\tr5, =0xa000\n");
 
-  if (device == "epxa10") {
+  # we need the wait for all EPXAs
+  #if (device == "epxa10") {
       printf("\tldr\t\tr6, =0x%x\n", (regs+numericValue("0x328")));
       printf("\tldr\t\tr9, =%u\n", int(50*ahb1/sdram));
-  }
+  
+  #}
 #  else {
 #    printf("\tldr\t\tr9, =%u\n", int(5*ahb1/sdram));
 #  }
@@ -232,7 +234,8 @@ function nstoclks(ns, mnv, mxv) {
 }
 
 function waitclks() {
-  if (device == "epxa10") {
+  # we need the wait for all EPXAs
+  #if (device == "epxa10") {
     printf("\tldr\t\tr7, [r6]\n");
     printf("\tadd\t\tr7, r7, r9\n");
     printf("loopcnt" loopcnt ":\n");
@@ -240,7 +243,7 @@ function waitclks() {
     printf("\tcmp\t\tr7, r8\n");
     printf("\tbhi\t\tloopcnt" loopcnt "\n");
     loopcnt++;
-  }
+  #}
 }
 
 
